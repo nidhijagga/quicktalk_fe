@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearError, clearMessage } from "../redux/slices/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Login = () => {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const { loading, error, message } = useSelector((state) => state.auth);
 	const [formData, setFormData] = useState({
 		email: "",
@@ -16,9 +17,15 @@ const Login = () => {
 	const handleChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		dispatch(loginUser(formData));
+		const result = await dispatch(loginUser(formData));
+
+		// Check if the login thunk was fulfilled (status code 200)
+		if (result.payload.status === 200) {
+			navigate("/dashboard");
+		}
+		// Otherwise, error handling in useEffect will display the error message.
 	};
 
 	useEffect(() => {
