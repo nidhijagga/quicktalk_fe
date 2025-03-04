@@ -16,12 +16,12 @@ const ChatBox = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const { user, loading, users } = useSelector((state) => state.auth);
-	const { messages } = useSelector((state) => state.chat);
 
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [message, setMessage] = useState("");
 	const [chatMessages, setChatMessages] = useState([]); // local messages state
 	const [otherUserTyping, setOtherUserTyping] = useState(false);
+	const [onlineUsers, setOnlineUsers] = useState([]);
 	const socket = useRef(null);
 	const chatContainerRef = useRef(null); // Ref for chat container
 	const typingTimeoutRef = useRef(null);
@@ -61,7 +61,7 @@ const ChatBox = () => {
 	// Establish Socket.IO connection once user is available
 	useEffect(() => {
 		if (user) {
-			socket.current = io("http://localhost:5000", {
+			socket.current = io("http://192.168.1.3:5000", {
 				transports: ["websocket"],
 			});
 
@@ -96,6 +96,10 @@ const ChatBox = () => {
 				}
 			});
 
+			socket.current.on("onlineUsers", (data) => {
+				setOnlineUsers(data);
+			});
+
 			socket.current.on("disconnect", () => {
 				console.log("Socket.IO disconnected");
 			});
@@ -109,6 +113,7 @@ const ChatBox = () => {
 	// Fetch chat history when a user is selected
 	useEffect(() => {
 		if (selectedUser && user) {
+			setMessage(""); // Clear the input field
 			dispatch(
 				getChatHistory({ user1: user._id, user2: selectedUser._id })
 			).then((response) => {
@@ -191,7 +196,12 @@ const ChatBox = () => {
 										: "bg-gray-100"
 								}`}
 							>
-								{u.username}
+								<div className="flex items-center">
+									<span>{u.username}</span>
+									{onlineUsers.includes(u._id) && (
+										<span className="ml-2 w-2 h-2 rounded-full bg-green-500"></span>
+									)}
+								</div>
 							</div>
 						))
 					) : (
