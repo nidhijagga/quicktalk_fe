@@ -23,7 +23,7 @@ const Login = () => {
 
 		// Check if the login thunk was fulfilled (status code 200)
 		if (result.payload.status === 200) {
-			navigate("/dashboard");
+			navigate("/chat");
 		}
 		// Otherwise, error handling in useEffect will display the error message.
 	};

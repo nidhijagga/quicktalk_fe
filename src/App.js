@@ -8,11 +8,11 @@ import {
 } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import PublicRoute from "./utils/PublicRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChatBox from "./pages/Chatbox";
 
 function App() {
 	return (
@@ -27,14 +27,14 @@ function App() {
 
 				{/* Protected routes: accessible only if logged in */}
 				<Route element={<ProtectedRoute />}>
-					<Route path="/dashboard" element={<Dashboard />} />
+					<Route path="/chat" element={<ChatBox />} />
 				</Route>
 
 				{/* Default fallback */}
 				<Route
 					path="*"
 					element={
-						// If the user is logged in, redirect to /dashboard; otherwise, go to /login
+						// If the user is logged in, redirect to /chat; otherwise, go to /login
 						<Navigate to="/login" replace />
 					}
 				/>

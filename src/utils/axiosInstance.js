@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
 				try {
 					// Call the refresh endpoint. We send the refresh token in the body.
 					const { data } = await axios.post(
-						`${process.env.REACT_APP_BACKEND_API_URL}refresh`,
+						`${process.env.REACT_APP_BACKEND_API_URL}auth/refresh`,
 						{ refreshToken }
 					);
 					// Expected data: { status, accessToken, refreshToken, message }

@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+
+.custom-scrollbar::-webkit-scrollbar,
+.timepicker-ui-wrapper::-webkit-scrollbar {
+    width: 4px;
+    height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track,
+.timepicker-ui-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.timepicker-ui-wrapper::-webkit-scrollbar-thumb {
+    background: #484848;
+    border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.timepicker-ui-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #484848;
+}
