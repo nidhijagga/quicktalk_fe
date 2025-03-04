@@ -21,8 +21,28 @@ const ChatBox = () => {
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [message, setMessage] = useState("");
 	const [chatMessages, setChatMessages] = useState([]); // local messages state
+	const [otherUserTyping, setOtherUserTyping] = useState(false);
 	const socket = useRef(null);
 	const chatContainerRef = useRef(null); // Ref for chat container
+	const typingTimeoutRef = useRef(null);
+
+	const handleTyping = () => {
+		if (socket.current && socket.current.connected && selectedUser) {
+			socket.current.emit("typing", {
+				sender: user._id,
+				recipient: selectedUser._id,
+			});
+			if (typingTimeoutRef.current) {
+				clearTimeout(typingTimeoutRef.current);
+			}
+			typingTimeoutRef.current = setTimeout(() => {
+				socket.current.emit("stopTyping", {
+					sender: user._id,
+					recipient: selectedUser._id,
+				});
+			}, 2000);
+		}
+	};
 
 	// Fetch current user profile if not loaded
 	useEffect(() => {
@@ -62,6 +82,17 @@ const ChatBox = () => {
 						data.recipient === selectedUser?._id)
 				) {
 					setChatMessages((prev) => [...prev, data]);
+				}
+			});
+
+			socket.current.on("typing", (data) => {
+				if (data.sender === selectedUser?._id) {
+					setOtherUserTyping(true);
+				}
+			});
+			socket.current.on("stopTyping", (data) => {
+				if (data.sender === selectedUser?._id) {
+					setOtherUserTyping(false);
 				}
 			});
 
@@ -172,9 +203,18 @@ const ChatBox = () => {
 				<main className="flex-grow p-4 flex flex-col">
 					{selectedUser ? (
 						<>
-							<h3 className="text-lg font-bold mb-2">
-								Chat with {selectedUser.username}
-							</h3>
+							<div className="flex">
+								<h3 className="text-lg font-bold mb-2">
+									Chat with {selectedUser.username}
+								</h3>
+								{otherUserTyping && (
+									<div className="mb-2 text-left">
+										<span className="inline-block mx-5 rounded italic">
+											{selectedUser.username} is typing...
+										</span>
+									</div>
+								)}
+							</div>
 							<div
 								ref={chatContainerRef}
 								className="flex-grow border p-4 mb-4 custom-scrollbar overflow-y-scroll h-48"
@@ -208,11 +248,15 @@ const ChatBox = () => {
 							</div>
 							<div className="flex">
 								<input
+									ref={typingTimeoutRef}
 									type="text"
 									className="border border-gray-300 rounded-l p-2 flex-grow focus:outline-none"
 									value={message}
-									onChange={(e) => setMessage(e.target.value)}
-									onKeyPress={(e) => {
+									onChange={(e) => {
+										setMessage(e.target.value);
+										handleTyping();
+									}}
+									onKeyUp={(e) => {
 										if (e.key === "Enter")
 											handleSendMessage();
 									}}
